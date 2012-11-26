@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RPG</title>
+
+    <script>
+      var Game = function() {
+        var running = true;
+        var ctx;
+
+        var initialize = function() {
+          this.ctx = document.getElementByID('c').getContext('2d');
+        };
+
+        var render = function() {
+          this.ctx.clearRect(0, 0, 400, 400);
+        };
+      };
+    </script>
+  </head>
+
+  <body>
+    <canvas id="c" width="400" height="400"></canvas>
+  </body>
+</html>

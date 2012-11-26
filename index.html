@@ -1,0 +1,565 @@
+<html>
+  <head>
+    <link rel=stylesheet href="Styles.css" type="text/css" />
+    <script type="text/javascript" src="jquery-1.3.2.min.js"></script>
+    <script type="text/javascript" src="jquery.timers.js"></script>
+    <script type="text/javascript" src="External.js"></script>
+    <script type="text/javascript">
+      var world;
+      var battle;
+      var confirm;
+      var alertBox;
+      var inn;
+      var pause = false;
+      var menuVisible = false;
+      var noBattle = false;
+      var slotSave = false;
+
+      $(document).ready(function(){
+        $("#cover").hide();
+        $("#itemsCover").hide();
+        $("#innCover").hide();
+        $("#slotCover").hide();
+        $("#menuCover").hide();
+        $("#alertBox").hide();
+        $("#confirmationBox").hide();
+
+        $("#pauseMenu").css({"top" : $(window).height() / 2 - 170 / 2, "left" : $(window).width() / 2 - 200 / 2});
+        $("#gameSlots").css({"top" : $(window).height() / 2 - 170 / 2, "left" : $(window).width() / 2 - 200 / 2});
+        $("#battleItemBox").css({"top" : $(window).height() / 2 - 230 / 2, "left" : $(window).width() / 2 - 230 / 2});
+
+        confirm = new ConfirmationBox("");
+        alertBox = new AlertBox("");
+
+        var hero = new Hero();
+
+        world = new World(hero);
+
+        SetAll(hero);
+
+        world.Translate();
+
+        world.Draw();
+
+        $("#innStay").click(function(){
+          world.inn.Stay();
+        });
+
+        $("#innLeave").click(function(){
+          world.inn.Leave();
+        });
+
+        $("#resume").click(function(){
+          menuVisible = false;
+
+          $("#menuCover").fadeOut();
+        });
+
+        $("#saveGame").click(function(){
+
+          //var db = window.openDatabase("games", "", "Saved Games", 1024 * 1024);
+
+          //tx.executeSql("INSERT into characters (name, ...) VALUES (?, ...);", [hero.Name, ...]);
+          //tx.executeSql("UPDATE characters set name=?, ... where id=?", [hero.Name, hero.ID]);
+
+          /*db.transaction(function(tx){
+            tx.executeSql("DROP TABLE characters;", []);
+            tx.executeSql("DROP TABLE items;", []);
+            tx.executeSql("DROP TABLE weapons;", []);
+            tx.executeSql("DROP TABLE armor;", []);
+            tx.executeSql("DROP TABLE spells;", []);
+
+            tx.executeSql("CREATE TABLE IF NOT EXISTS characters (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, gender INTEGER NOT NULL, race INTEGER NOT NULL, class INTEGER NOT NULL, hp INTEGER NOT NULL, maxHP INTEGER NOT NULL, mp INTEGER NOT NULL, maxMP INTEGER NOT NULL, swordName TEXT NOT NULL, swordEnum INTEGER NOT NULL, swordAttackBonus INTEGER NOT NULL, swordDefenseBonus INTEGER NOT NULL, swordAgilityBonus INTEGER NOT NULL, swordIntelligenceBonus INTEGER NOT NULL, swordLuckBonus INTEGER NOT NULL, swordValue INTEGER NOT NULL, swordWeight INTEGER NOT NULL, swordPower INTEGER NOT NULL, shieldName TEXT NOT NULL, shieldEnum INTEGER NOT NULL, shieldAttackBonus INTEGER NOT NULL, shieldDefenseBonus INTEGER NOT NULL, shieldAgilityBonus INTEGER NOT NULL, shieldIntelligenceBonus INTEGER NOT NULL, shieldLuckBonus INTEGER NOT NULL, shieldValue INTEGER NOT NULL, shieldWeight INTEGER NOT NULL, shieldDefense INTEGER NOT NULL, helmetName TEXT NOT NULL, helmetEnum INTEGER NOT NULL, helmetAttackBonus INTEGER NOT NULL, helmetDefenseBonus INTEGER NOT NULL, helmetAgilityBonus INTEGER NOT NULL, helmetIntelligenceBonus INTEGER NOT NULL, helmetLuckBonus INTEGER NOT NULL, helmetValue INTEGER NOT NULL, helmetWeight INTEGER NOT NULL, helmetDefense INTEGER NOT NULL, armorTopName TEXT NOT NULL, armorTopEnum INTEGER NOT NULL, armorTopAttackBonus INTEGER NOT NULL, armorTopDefenseBonus INTEGER NOT NULL, armorTopAgilityBonus INTEGER NOT NULL, armorTopIntelligenceBonus INTEGER NOT NULL, armorTopLuckBonus INTEGER NOT NULL, armorTopValue INTEGER NOT NULL, armorTopWeight INTEGER NOT NULL, armorTopDefense INTEGER NOT NULL, armorBottomName TEXT NOT NULL, armorBottomEnum INTEGER NOT NULL, armorBottomAttackBonus INTEGER NOT NULL, armorBottomDefenseBonus INTEGER NOT NULL, armorBottomAgilityBonus INTEGER NOT NULL, armorBottomIntelligenceBonus INTEGER NOT NULL, armorBottomLuckBonus INTEGER NOT NULL, armorBottomValue INTEGER NOT NULL, armorBottomWeight INTEGER NOT NULL, armorBottomDefense INTEGER NOT NULL, attack INTEGER NOT NULL, defense INTEGER NOT NULL, agility INTEGER NOT NULL, intelligence INTEGER NOT NULL, luck INTEGER NOT NULL, level INTEGER NOT NULL, experience INTEGER NOT NULL, gold INTEGER NOT NULL);", [], function(result){},
+            function(tx, error){
+              alert("Error: " + error.message);
+            });
+
+            var query = "INSERT into characters (id, name, gender, race, class, hp, maxHP, mp, maxMP, swordName, swordEnum, swordAttackBonus, swordDefenseBonus, swordAgilityBonus, swordIntelligenceBonus, swordLuckBonus, swordValue, swordWeight, swordPower, shieldName, shieldEnum, shieldAttackBonus, shieldDefenseBonus, shieldAgilityBonus, shieldIntelligenceBonus, shieldLuckBonus, shieldValue, shieldWeight, shieldDefense, helmetName, helmetEnum, helmetAttackBonus, helmetDefenseBonus, helmetAgilityBonus, helmetIntelligenceBonus, helmetLuckBonus, helmetValue, helmetWeight, helmetDefense, armorTopName, armorTopEnum, armorTopAttackBonus, armorTopDefenseBonus, armorTopAgilityBonus, armorTopIntelligenceBonus, armorTopLuckBonus, armorTopValue, armorTopWeight, armorTopDefense, armorBottomName, armorBottomEnum, armorBottomAttackBonus, armorBottomDefenseBonus, armorBottomAgilityBonus, armorBottomIntelligenceBonus, armorBottomLuckBonus, armorBottomValue, armorBottomWeight, armorBottomDefense, attack, defense, agility, intelligence, luck, level, experience, gold) VALUES (0, '', 0, 0, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);";
+
+            tx.executeSql(query, [], function(tx, result)
+            {
+              tx.executeSql("SELECT characters.id AS id, COUNT(*) from characters;", [], function(tx, result){alert("ID: " + result.rows.item(0)['id']);}, function(tx, error){alert("Error in select after insert (" + error.message + ").");});
+            },
+            function(tx, error)
+            {
+              alert("Error in first insert (" + error.message + ").");
+            });
+
+            /*
+
+            tx.executeSql("CREATE TABLE IF NOT EXISTS items (id INTEGER NOT NULL, name TEXT NOT NULL, enum INTEGER NOT NULL, value INTEGER NOT NULL, weight NOT NULL, characterID INTEGER NOT NULL);", [], function(result){},
+            function(tx, error){
+              alert("Error: " + error.message);
+            });
+
+            tx.executeSql("CREATE TABLE weapons (id INTEGER NOT NULL, name TEXT NOT NULL, weaponEnum INTEGER NOT NULL, attackBonus INTEGER NOT NULL, defenseBonus INTEGER NOT NULL, agilityBonus INTEGER NOT NULL, intelligenceBonus INTEGER NOT NULL, luckBonus INTEGER NOT NULL, value INTEGER NOT NULL, weight INTEGER NOT NULL, power INTEGER NOT NULL, characterID INTEGER NOT NULL);", [], function(result){},
+            function(tx, error){
+              alert("Error: " + error.message);
+            });
+
+            tx.executeSql("CREATE TABLE armors (id INTEGER NOT NULL, name TEXT NOT NULL, armorEnum INTEGER NOT NULL, attackBonus INTEGER NOT NULL, defenseBonus INTEGER NOT NULL, agilityBonus INTEGER NOT NULL, intelligenceBonus INTEGER NOT NULL, luckBonus INTEGER NOT NULL, value INTEGER NOT NULL, weight INTEGER NOT NULL, defense INTEGER NOT NULL, armorType INTEGER NOT NULL, characterID INTEGER NOT NULL);", [], function(result){},
+            function(tx, error){
+              alert("Error: " + error.message);
+            });
+
+            tx.executeSql("CREATE TABLE spells (id INTEGER NOT NULL, name TEXT NOT NULL, spell INTEGER NOT NULL, cost INTEGER NOT NULL, characterID INTEGER NOT NULL);", [], function(result){alert("success");},
+            function(tx, error){
+              alert("Error: " + error.message);
+            });
+
+            tx.executeSql("CREATE TABLE worldData (heroX INTEGER NOT NULL, heroY INTEGER NOT NULL, curMapX INTEGER NOT NULL, curMapY INTEGER NOT NULL, characterID INTEGER NOT NULL);", []);
+          });*/
+
+          var db = window.openDatabase("games", "", "Saved Games", 1024 * 1024);
+
+          db.transaction(function(tx)
+          {
+            tx.executeSql("SELECT characters.name AS name, * from characters LIMIT 3;", [], function(tx, result)
+            {
+              try
+              {
+                $("#slot1").html("Slot 1: " + result.rows.item(0)['name']);
+              }
+              catch(e)
+              {
+                $("#slot1").html("Slot 1: Empty");
+              }
+
+              try
+              {
+                $("#slot2").html("Slot 2: " + result.rows.item(1)['name']);
+              }
+              catch(e)
+              {
+                $("#slot2").html("Slot 2: Empty");
+              }
+
+              try
+              {
+                $("#slot3").html("Slot 3: " + result.rows.item(2)['name']);
+              }
+              catch(e)
+              {
+                $("#slot3").html("Slot 3: Empty");
+              }
+
+              slotSave = true;
+
+              $("#slotCover").show();
+            },
+            function(tx, error)
+            {
+              alert("Error: " + error.message);
+            });
+          });
+        });
+
+        $("#loadGame").click(function(){
+          var db = window.openDatabase("games", "", "Saved Games", 1024 * 1024);
+
+          db.transaction(function(tx){
+            tx.executeSql("SELECT characters.name AS name, * from characters LIMIT 3;", [], function(tx, result)
+            {
+              try
+              {
+                $("#slot1").html("Slot 1: " + result.rows.item(0)['name']);
+              }
+              catch(e)
+              {
+                $("#slot1").html("Slot 1: Empty");
+              }
+
+              try
+              {
+                $("#slot2").html("Slot 2: " + result.rows.item(1)['name']);
+              }
+              catch(e)
+              {
+                $("#slot2").html("Slot 2: Empty");
+              }
+
+              try
+              {
+                $("#slot3").html("Slot 3: " + result.rows.item(2)['name']);
+              }
+              catch(e)
+              {
+                $("#slot3").html("Slot 3: Empty");
+              }
+
+              slotSave = false;
+
+              $("#slotCover").show();
+            }, function(tx, error){ alert("Error: " + error.message);});
+          });
+        });
+
+        $("#slot1").click(function(){
+          var db = window.openDatabase("games", "", "Saved Games", 1024 * 1024);
+
+          db.transaction(function(tx){
+            if(slotSave)
+            {
+              hero.Save(tx, hero, 0);
+              world.Save(tx, 0);
+            }
+            else
+            {
+              hero.Load(tx, hero, 0);
+              world.Load(tx, world, 0);
+            }
+          });
+        });
+
+        $("#slot2").click(function(){
+          var db = window.openDatabase("games", "", "Saved Games", 1024 * 1024);
+
+          db.transaction(function(tx){
+            if(slotSave)
+            {
+              hero.Save(tx, hero, 1);
+              world.Save(tx, 1);
+            }
+            else
+            {
+              hero.Load(tx, hero, 1);
+              world.Load(tx, world, 1);
+            }
+          });
+        });
+
+        $("#slot3").click(function(){
+          var db = window.openDatabase("games", "", "Saved Games", 1024 * 1024);
+
+          db.transaction(function(tx){
+            if(slotSave)
+            {
+              hero.Save(tx, hero, 2);
+              world.Save(tx, 2);
+            }
+            else
+            {
+              hero.Load(tx, hero, 2);
+              world.Load(tx, world, 2);
+            }
+          });
+        });
+
+        $("#slotCancel").click(function(){
+          $("#slotCover").hide();
+        });
+
+        $("#quit").click(function(){
+          confirm.Data = "";
+          confirm.Question = "Are you sure you want to quit?";
+          confirm.End = function(result){
+            // Quit game code
+            if(result)
+              alert("You quit.");
+          }
+
+          confirm.Show();
+        });
+
+        $("#alertOK").click(function(){
+          alertBox.Hide();
+        });
+
+        $("#confirmYes").click(function(){
+          confirm.Result = true;
+
+          confirm.Hide();
+        });
+
+        $("#confirmNo").click(function(){
+          confirm.Result = false;
+
+          confirm.Hide();
+        });
+
+        $("#useItem").click(function(){
+          if(document.getElementById("items").value == "" || pause)
+            return;
+
+          UseItem(document.getElementById("items").value, hero);
+        });
+
+        $("#equipItem").click(function(){
+          if(document.getElementById("items").value == "" || pause)
+            return;
+
+          EquipItem(document.getElementById("items").value, hero);
+        });
+
+        $("#dropItem").click(function(){
+          if(document.getElementById("items").value == "" || pause)
+            return;
+
+          confirm.Data = document.getElementById("items").value;
+          confirm.Question = "Are you sure?";
+          confirm.End = function(result){
+            if(!result)
+              return;
+
+            var vals = confirm.Data.split(",");
+            var itemType = parseInt(vals[0]);
+            var index = parseInt(vals[2]);
+
+            switch(itemType)
+            {
+              case ItemType.item:
+                hero.Items.RemoveItemAt(index);
+
+                break;
+
+              case ItemType.weapon:
+                hero.Weapons.RemoveItemAt(index);
+
+                break;
+
+              case ItemType.armor:
+                hero.Armor.RemoveItemAt(index);
+
+                break;
+            }
+
+            SetAll(hero);
+          }
+
+          confirm.Show();
+        });
+
+        $("#battleAttack").click(function(){
+          if(hero.InBattle)
+            world.battle.Attack(false);
+        });
+
+        $("#battleDefend").click(function(){
+          if(hero.InBattle)
+            world.battle.Attack(true);
+        });
+
+        $("#battleItem").click(function(){
+          if(hero.InBattle)
+          {
+            $("#battleItems").html(hero.GetDisplayItems());
+
+            $("#itemsCover").fadeIn();
+          }
+        });
+
+        $("#battleItemsUse").click(function(){
+          if(hero.InBattle)
+            world.battle.Item(hero);
+        });
+
+        $("#battleItemsCancel").click(function(){
+          if(hero.InBattle)
+            $("#itemsCover").fadeOut();
+        });
+
+        $("#battleRun").click(function(){
+          if(hero.InBattle)
+            world.battle.Run(hero);
+        });
+
+        $(document).keydown(function(e){
+          var moved = false;
+
+          if(hero.InBattle)
+            return;
+
+          switch(e.keyCode)
+          {
+            case 49:
+              world.noBattle = world.noBattle ? false : true;
+
+              break;
+
+            case 13:
+              if(alertBox.Visible)
+              {
+                alertBox.Hide();
+              }
+              else
+              {
+                menuVisible ? $("#menuCover").fadeOut() : $("#menuCover").fadeIn();
+
+                menuVisible = (menuVisible ? false : true);
+              }
+
+              break;
+
+            case 65:
+              if(pause)
+                return;
+
+              world.Move(Directions.left);
+
+              break;
+
+            case 87:
+              if(pause)
+                return;
+
+              world.Move(Directions.up);
+
+              break;
+
+            case 68:
+              if(pause)
+                return;
+
+              world.Move(Directions.right);
+
+              break;
+
+            case 83:
+              if(pause)
+                return;
+
+              world.Move(Directions.down);
+
+              break;
+          }
+
+          SetAll(hero);
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="stats"></div>
+    <div id="miniMap">[Minimap]</div>
+    <canvas id="graphicBuffer" width="400" height="400" style="position:absolute; top:10px; left:230px;"></canvas>
+    <canvas id="graphic" width="400" height="400" style="border:1px solid #407bae; position:absolute; top:10px; left:230px;"></canvas>
+
+    <div id="cover" style="position:absolute; top:0; left:0; right:0; bottom:0; background-color:black; z-index:99;">
+      <div id="battleBox">
+        <span id="enemyName"></span>
+        <span id="enemyHP"></span>
+        <span id="heroName"></span>
+        <span id="heroHP"></span>
+        <span id="heroMP"></span>
+        <span id="battleInfo"></span>
+        <div id="battleAttack" class="button">Attack</div>
+        <div id="battleDefend" class="button">Defend</div>
+        <div id="battleEqpt" class="button">Eqpt</div>
+        <div id="battleSpell" class="button">Spell</div>
+        <div id="battleItem" class="button">Item</div>
+        <div id="battleRun" class="button">Run</div>
+      </div>
+    </div>
+
+    <div id="itemsCover" style="position:absolute; top:0; left:0; right:0; bottom:0; background-color:black; z-index:100;">
+      <div id="battleItemBox">
+        <select id="battleItems" size="20">
+        </select>
+
+        <div id="battleItemsUse" class="button">Use</div>
+        <div id="battleItemsCancel" class="button">Cancel</div>
+      </div>
+    </div>
+
+    <div id="confirmationBox" style="position:absolute; top:200px; left:200px; width:300px; height:100px; z-index:110; background-color:white; border:solid black 1px;">
+      <span id="confirmQuestion"></span>
+      <div id="confirmYes" class="button">Yes</div>
+      <div id="confirmNo" class="button">No</div>
+    </div>
+
+    <div id="alertBox" style="position:absolute; top:200px; left:200px; width:300px; height:100px; z-index:110; background-color:white; border:solid black 1px;">
+      <span id="alertText"></span>
+      <div id="alertOK" class="button">OK</div>
+    </div>
+
+    <div id="innCover" style="position:absolute; top:0; left:0; right:0; bottom:0; background-color:black; z-index:100;">
+      <div id="inn" style="position:absolute; width:150px; height:150px; z-index:99; background-color:white; border:solid black 1px;" align="center">
+        <span id="innText"></span>
+        <div id="innStay" style="margin:5px;" class="button">Stay</div>
+        <div id="innLeave" style="margin:5px;" class="button">Leave</div>
+      </div>
+    </div>
+
+    <div id="slotCover" style="position:absolute; top:0; left:0; right:0; bottom:0; background-color:black; z-index:103;">
+      <div id="gameSlots" style="position:absolute; width:200px; height:170px; z-index:99; background-color:white; border:solid black 1px;" align="center">
+        <span style="width:100%; font-size:2em; font-weight:bold;">Saved Games</span>
+        <div id="slot1" style="margin:5px;" class="button">Slot 1: Empty</div>
+        <div id="slot2" style="margin:5px;" class="button">Slot 2: Empty</div>
+        <div id="slot3" style="margin:5px;" class="button">Slot 3: Empty</div>
+        <div id="slotCancel" style="margin:5px;" class="button">Cancel</div>
+      </div>
+    </div>
+
+    <div id="menuCover" style="position:absolute; top:0; left:0; right:0; bottom:0; background-color:black; z-index:102;">
+      <div id="pauseMenu" style="position:absolute; width:200px; height:170px; z-index:99; background-color:white; border:solid black 1px;" align="center">
+        <span style="width:100%; font-size:2em; font-weight:bold;">Menu</span>
+        <div id="resume" style="margin:5px;" class="button">Resume Game</div>
+        <div id="saveGame" style="margin:5px;" class="button">Save Game</div>
+        <div id="loadGame" style="margin:5px;" class="button">Load Game</div>
+        <div id="quit" style="margin:5px;" class="button">Quit</div>
+      </div>
+    </div>
+
+    <!--<div id="newCharacterCover" style="position:absolute; top:0; left:0; right:0; bottom:0; background-color:black; z-index:102;">
+      <div id="newCharacter" style="position:absolute; width:400px; height:170px; z-index:99; background-color:white; border:solid black 1px;" align="center">
+        <table>
+          <tr>
+            <td colspan="4">
+              <span style="width:100%; font-size:2em; font-weight:bold;">New Character</span>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <span>Name:</span>
+            </td>
+
+            <td>
+              <input type="text" id="newCharName">
+            </td>
+
+            <td colspan="2" rowspan="3">
+              <span id="newCharStats"></span>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <span>Race:</span>
+            </td>
+
+            <td>
+              <select id="newCharRace">
+                <option value="0">Human</option>
+                <option value="1">Elf</option>
+              </select>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <span>Class:</span>
+            </td>
+
+            <td>
+              <select id="newCharClass">
+                <option value="0">Warrior</option>
+                <option value="1">Cleric</option>
+              </select>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>-->
+
+    <span id="info"></span>
+    <div id="equipment">
+    </div>
+    <select id="items" size="20">
+    </select>
+    <div id="useItem" class="button">Use</div>
+    <div id="equipItem" class="button">Equip</div>
+    <div id="dropItem" class="button">Drop</div>
+  </body>
+</html>
