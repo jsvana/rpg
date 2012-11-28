@@ -3,23 +3,23 @@
   <head>
     <title>RPG</title>
 
+    <script src="js/enums.js"></script>
+    <script src="js/Satchel.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/Tile.js"></script>
+    <script src="js/World.js"></script>
+    <script src="js/Character.js"></script>
+    <script src="js/Game.js"></script>
     <script>
-      var Game = function() {
-        var running = true;
-        var ctx;
-
-        var initialize = function() {
-          this.ctx = document.getElementByID('c').getContext('2d');
-        };
-
-        var render = function() {
-          this.ctx.clearRect(0, 0, 400, 400);
-        };
+      var initialize = function() {
+        var game = new Game();
+        game.initialize();
       };
     </script>
   </head>
 
-  <body>
+  <body onload="initialize()">
     <canvas id="c" width="400" height="400"></canvas>
+    <canvas id="minimap" width="400" height="400"></canvas>
   </body>
 </html>
