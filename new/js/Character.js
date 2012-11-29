@@ -7,30 +7,27 @@ var Character = function(name) {
   this.mp = 100;
   this.maxMP = 100;
 
-  this.position = {};
-  this.dimensions = {};
+  this.position = { x: 0, y: 0, mapX: 0, mapY: 0 };
+  this.dimensions = { width: 20, height: 20, mapWidth: 0, mapHeight: 0 };
+  this.tweens = { x: 0, y: 0 };
 
   this.satchel = new Satchel();
 
   this.initialize = function() {
-    this.position = { x: 0, y: 0, mapX: 0, mapY: 0 };
-    this.dimensions = { width: 20, height: 20, mapWidth: 0, mapHeight: 0 };
   };
 
   this.render = function(gameContext, miniMapContext) {
-    var oldGameStroke = gameContext.strokeStyle;
-    var oldGameFill = gameContext.fillStyle;
-    var oldMiniMapStroke = miniMapContext.strokeStyle;
-    var oldMiniMapFill = miniMapContext.fillStyle;
+    gameContext.save();
+    miniMapContext.save();
 
     var x = this.position.x * this.dimensions.width + this.dimensions.width / 2;
     var y = this.position.y * this.dimensions.height + this.dimensions.height / 2;
     var radius = this.dimensions.width / 2;
 
-    gameContext.strokeStyle = '#303ac7';
-    gameContext.fillStyle = '#3060c7';
-    miniMapContext.strokeStyle = '#303ac7';
-    miniMapContext.fillStyle = '#3060c7';
+    gameContext.strokeStyle = '#000000';
+    gameContext.fillStyle = '#000000';
+    miniMapContext.strokeStyle = '#000000';
+    miniMapContext.fillStyle = '#000000';
 
     gameContext.beginPath();
     gameContext.arc(x, y, radius - 1, 0, 2 * Math.PI, false);
@@ -39,18 +36,15 @@ var Character = function(name) {
     gameContext.closePath();
 
     miniMapContext.beginPath();
-    console.log('mapX: ' + this.position.mapX + ', mapWidth: ' + this.dimensions.mapWidth + ', width: ' + this.dimensions.width);
-    miniMapContext.arc((this.position.mapX * this.dimensions.mapWidth * this.dimensions.width + x) / 2,
-      (this.position.mapY * this.dimensions.mapHeight * this.dimensions.height + y) / 2,
-      radius / 2 - 1, 0, 2 * Math.PI, false);
+    miniMapContext.arc((this.position.mapX * this.dimensions.mapWidth * this.dimensions.width + x) / 4,
+      (this.position.mapY * this.dimensions.mapHeight * this.dimensions.height + y) / 4,
+      radius / 4 - 1, 0, 2 * Math.PI, false);
     miniMapContext.fill();
     miniMapContext.stroke();
     miniMapContext.closePath();
 
-    gameContext.strokeStyle = oldGameStroke;
-    gameContext.fillStyle = oldGameFill;
-    miniMapContext.strokeStyle = oldMiniMapStroke;
-    miniMapContext.fillStyle = oldMiniMapFill;
+    gameContext.restore();
+    miniMapContext.restore();
   };
 
   this.setMapPosition = function(position) {
@@ -81,5 +75,28 @@ var Character = function(name) {
     if (this.hp > this.maxHP) {
       this.hp = this.maxHP;
     }
-  }
+  };
+
+  this.tween = function(direction) {
+    if (this.tweens.x === 0 && this.tweens.y === 0) {
+      switch (direction) {
+        case Direction.up:
+          this.tweens.y = this.dimensions.height;
+          break;
+        case Direction.down:
+          this.tweens.y = -this.dimensions.height;
+          break;
+        case Direction.left:
+          this.tweens.x = this.dimensions.width;
+          break;
+        case Direction.right:
+          this.tweens.x = -this.dimensions.width;
+          break;
+      }
+
+      return true;
+    } else {
+
+    }
+  };
 };

@@ -1,8 +1,8 @@
 var Direction = {
-  up: 0,
-  down: 1,
-  left: 2,
-  right: 3
+  left: 0,
+  up: 1,
+  right: 2,
+  down: 3
 };
 
 var Items = {

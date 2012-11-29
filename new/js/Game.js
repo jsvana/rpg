@@ -4,6 +4,8 @@ var Game = function() {
   this.miniMapWindow;
   this.hero;
   this.world;
+  this.gameTimer;
+  this.arrowKeys = [false, false, false, false];
 
   var keyDown = (function(self) {
     return function(e) {
@@ -11,19 +13,36 @@ var Game = function() {
         return;
       }
 
-      switch (e.which) {
-        case 38:
-          self.world.move(self.hero, Direction.up, 1);
-          break;
-        case 40:
-          self.world.move(self.hero, Direction.down, 1);
-          break;
-        case 37:
-          self.world.move(self.hero, Direction.left, 1);
-          break;
-        case 39:
-          self.world.move(self.hero, Direction.right, 1);
-          break;
+      self.arrowKeys[e.which - 37] = true;
+    };
+  })(this);
+
+  var keyUp = (function(self) {
+    return function(e) {
+      if (e.which < 37 || e.which > 40) {
+        return;
+      }
+
+      self.arrowKeys[e.which - 37] = false;
+    };
+  })(this);
+
+  var gameLoop = (function(self) {
+    return function() {
+      if (!self.running) {
+        RPG.stopTimer(self.timer);
+      }
+
+      if (self.arrowKeys[Direction.up]) {
+        self.world.move(self.hero, Direction.up, 1);
+      } else if (self.arrowKeys[Direction.down]) {
+        self.world.move(self.hero, Direction.down, 1);
+      }
+
+      if (self.arrowKeys[Direction.left]) {
+        self.world.move(self.hero, Direction.left, 1);
+      } else if (self.arrowKeys[Direction.right]) {
+        self.world.move(self.hero, Direction.right, 1);
       }
 
       self.render(self.gameWindow, self.miniMapWindow);
@@ -43,6 +62,8 @@ var Game = function() {
     this.hero.setMapDimensions(this.world.getMapDimensions());
 
     document.addEventListener('keydown', keyDown, false);
+    document.addEventListener('keyup', keyUp, false);
+    this.gameTimer = RPG.timer(RPG.fpsToMS(20), gameLoop);
 
     this.render(this.gameWindow, this.miniMapWindow);
   };

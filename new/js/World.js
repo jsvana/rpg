@@ -85,11 +85,8 @@ var World = function() {
         }
         break;
       case Direction.right:
-        console.log('right');
-        console.log('map: { x: ' + this.currentMap.x + ', y: ' + this.currentMap.y + ' }');
         if (character.position.x + magnitude >= this.dimensions.width && this.currentMap.x + 1 < this.dimensions.mapHeight
           && this.tiles[this.currentMap.y][this.currentMap.x + 1][character.position.y][0].walkable) {
-          console.log('change');
           character.position.x = 0;
           this.transitionMaps(direction);
           character.setMapPosition(this.currentMap);

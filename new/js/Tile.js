@@ -23,8 +23,8 @@ var Tile = function(type, position, mapDimensions) {
     var x, y;
 
     if (small) {
-      width = this.dimensions.width / 2;
-      height = this.dimensions.height / 2;
+      width = this.dimensions.width / 4;
+      height = this.dimensions.height / 4;
 
       x = this.position.mapX * this.dimensions.mapWidth * width + this.position.x * width;
       y = this.position.mapY * this.dimensions.mapHeight * height + this.position.y * height;
