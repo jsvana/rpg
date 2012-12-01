@@ -5,6 +5,8 @@ var Game = function() {
   this.hero;
   this.world;
   this.gameTimer;
+  this.assets;
+
   this.arrowKeys = [false, false, false, false];
 
   var keyDown = (function(self) {
@@ -33,19 +35,27 @@ var Game = function() {
         RPG.stopTimer(self.timer);
       }
 
-      if (self.arrowKeys[Direction.up]) {
-        self.world.move(self.hero, Direction.up, 1);
-      } else if (self.arrowKeys[Direction.down]) {
-        self.world.move(self.hero, Direction.down, 1);
+      if (self.world.isTweening()) {
+        self.world.tweenMaps();
+      } else {
+        if (self.hero.isTweening()) {
+          self.hero.tween();
+        } else {
+          if (self.arrowKeys[Direction.up]) {
+            self.world.move(self.hero, Direction.up, 1);
+          } else if (self.arrowKeys[Direction.down]) {
+            self.world.move(self.hero, Direction.down, 1);
+          }
+
+          if (self.arrowKeys[Direction.left]) {
+            self.world.move(self.hero, Direction.left, 1);
+          } else if (self.arrowKeys[Direction.right]) {
+            self.world.move(self.hero, Direction.right, 1);
+          }
+        }
       }
 
-      if (self.arrowKeys[Direction.left]) {
-        self.world.move(self.hero, Direction.left, 1);
-      } else if (self.arrowKeys[Direction.right]) {
-        self.world.move(self.hero, Direction.right, 1);
-      }
-
-      self.render(self.gameWindow, self.miniMapWindow);
+      self.render(self.gameWindow, self.miniMapWindow, self.assets);
     };
   })(this);
 
@@ -53,19 +63,29 @@ var Game = function() {
     this.gameWindow = document.getElementById('c').getContext('2d');
     this.miniMapWindow = document.getElementById('minimap').getContext('2d');
 
-    this.hero = new Character();
-    this.hero.initialize();
-
-    this.world = new World();
-    this.world.initialize();
-
-    this.hero.setMapDimensions(this.world.getMapDimensions());
-
     document.addEventListener('keydown', keyDown, false);
     document.addEventListener('keyup', keyUp, false);
-    this.gameTimer = RPG.timer(RPG.fpsToMS(20), gameLoop);
 
-    this.render(this.gameWindow, this.miniMapWindow);
+    var self = this;
+
+    RPG.loadAssets({
+      character: 'assets/character.png',
+      tileset: 'assets/tileset.mountain.png'
+    }, function(count, max) {
+      console.log('loaded ' + count + '/' + max);
+    }, function(assets) {
+      self.assets = assets;
+
+      self.hero = new Character();
+      self.hero.initialize();
+
+      self.world = new World(assets);
+      self.world.initialize();
+
+      self.hero.setMapDimensions(self.world.getMapDimensions());
+
+      self.gameTimer = RPG.timer(RPG.fpsToMS(50), gameLoop);
+    });
   };
 
   this.render = function(gameContext, miniMapContext) {

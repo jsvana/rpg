@@ -21,9 +21,3 @@ var Items = {
     this.use = function(target) { };
   }
 };
-
-var TileType = {
-  air: 0,
-  grass: 1,
-  water: 2
-};

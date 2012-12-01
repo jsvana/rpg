@@ -8,8 +8,9 @@ var Character = function(name) {
   this.maxMP = 100;
 
   this.position = { x: 0, y: 0, mapX: 0, mapY: 0 };
-  this.dimensions = { width: 20, height: 20, mapWidth: 0, mapHeight: 0 };
+  this.dimensions = { width: 32, height: 32, mapWidth: 0, mapHeight: 0 };
   this.tweens = { x: 0, y: 0 };
+  this.direction = Direction.down;
 
   this.satchel = new Satchel();
 
@@ -20,8 +21,8 @@ var Character = function(name) {
     gameContext.save();
     miniMapContext.save();
 
-    var x = this.position.x * this.dimensions.width + this.dimensions.width / 2;
-    var y = this.position.y * this.dimensions.height + this.dimensions.height / 2;
+    var x = this.position.x * this.dimensions.width + this.dimensions.width / 2 + this.tweens.x;
+    var y = this.position.y * this.dimensions.height + this.dimensions.height / 2 + this.tweens.y;
     var radius = this.dimensions.width / 2;
 
     gameContext.strokeStyle = '#000000';
@@ -77,26 +78,49 @@ var Character = function(name) {
     }
   };
 
+  this.isTweening = function() {
+    return this.tweens.x !== 0 || this.tweens.y !== 0;
+  };
+
   this.tween = function(direction) {
-    if (this.tweens.x === 0 && this.tweens.y === 0) {
-      switch (direction) {
-        case Direction.up:
-          this.tweens.y = this.dimensions.height;
-          break;
-        case Direction.down:
-          this.tweens.y = -this.dimensions.height;
-          break;
-        case Direction.left:
-          this.tweens.x = this.dimensions.width;
-          break;
-        case Direction.right:
-          this.tweens.x = -this.dimensions.width;
-          break;
+    this.direction = direction;
+
+    if ((direction === Direction.left || direction === Direction.right) && this.tweens.x === 0) {
+      if (direction === Direction.left) {
+        this.tweens.x = this.dimensions.width;
+      } else if (direction === Direction.right) {
+        this.tweens.x = -this.dimensions.width;
       }
+    }
 
-      return true;
-    } else {
+    if ((direction === Direction.up || direction === Direction.down) && this.tweens.y === 0) {
+      if (direction === Direction.up) {
+        this.tweens.y = this.dimensions.height;
+      } else if (direction === Direction.down) {
+        this.tweens.y = -this.dimensions.height;
+      }
+    }
 
+    if (this.tweens.x > 0) {
+      this.tweens.x -= 4;
+    } else if (this.tweens.x < 0) {
+      this.tweens.x += 4;
+    }
+
+    if (this.tweens.x < 0 && this.direction === Direction.left
+      || this.tweens.x > 0 && this.direction === Direction.right) {
+      this.tweens.x = 0;
+    }
+
+    if (this.tweens.y > 0) {
+      this.tweens.y -= 4;
+    } else if (this.tweens.y < 0) {
+      this.tweens.y += 4;
+    }
+
+    if (this.tweens.y < 0 && this.direction === Direction.up
+      || this.tweens.y > 0 && this.direction === Direction.down) {
+      this.tweens.y = 0;
     }
   };
 };

@@ -1,26 +1,26 @@
-var Tile = function(type, position, mapDimensions) {
+var Tile = function(type, position, mapDimensions, assets) {
   this.type = type;
   this.walkable = true;
   this.position = position;
   this.dimensions = {
-    width: 20,
-    height: 20
+    width: 32,
+    height: 32
   };
+
+  this.assets = assets;
 
   if (mapDimensions) {
     this.dimensions.mapWidth = mapDimensions.width || 0;
     this.dimensions.mapHeight = mapDimensions.height || 0;
   }
 
-  if (this.type === TileType.water) {
-    this.walkable = false;
-  }
-
   this.render = function(context, small) {
-    var oldStroke = context.strokeStyle;
-    var oldFill = context.fillStyle;
+    context.save();
+
     var width, height;
     var x, y;
+    var imageX = this.type % 16;
+    var imageY = Math.floor(this.type / 16);
 
     if (small) {
       width = this.dimensions.width / 4;
@@ -36,27 +36,10 @@ var Tile = function(type, position, mapDimensions) {
       y = this.position.y * height;
     }
 
-    switch (type) {
-      case TileType.water:
-        context.strokeStyle = '#0000bb';
-        context.fillStyle = '#0000bb';
+    context.drawImage(this.assets.tileset,
+      imageX * width, imageY * height, width, height,
+      x, y, width, height);
 
-        context.fillRect(x, y, width, height);
-
-        break;
-      case TileType.grass:
-        context.strokeStyle = '#00bb00';
-        context.fillStyle = '#00bb00';
-
-        context.fillRect(x, y, width, height);
-
-        break;
-      case TileType.air:
-      default:
-        break;
-    };
-
-    context.strokeStyle = oldStroke;
-    context.fillStyle = oldFill;
+    context.restore();
   };
 };
