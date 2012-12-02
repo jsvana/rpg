@@ -6,6 +6,7 @@ var Game = function() {
   this.world;
   this.gameTimer;
   this.assets;
+  this.ticks = 0;
 
   this.arrowKeys = [false, false, false, false];
 
@@ -32,7 +33,7 @@ var Game = function() {
   var gameLoop = (function(self) {
     return function() {
       if (!self.running) {
-        RPG.stopTimer(self.timer);
+        RPG.stopTimer(self.gameTimer);
       }
 
       if (self.world.isTweening()) {
@@ -55,7 +56,11 @@ var Game = function() {
         }
       }
 
+      self.hero.animate(self.ticks);
+
       self.render(self.gameWindow, self.miniMapWindow, self.assets);
+
+      ++self.ticks;
     };
   })(this);
 
@@ -69,14 +74,14 @@ var Game = function() {
     var self = this;
 
     RPG.loadAssets({
-      character: 'assets/character.png',
+      character: 'assets/character.new.png',
       tileset: 'assets/tileset.mountain.png'
     }, function(count, max) {
       console.log('loaded ' + count + '/' + max);
     }, function(assets) {
       self.assets = assets;
 
-      self.hero = new Character();
+      self.hero = new Character('jsvana', assets);
       self.hero.initialize();
 
       self.world = new World(assets);
@@ -93,7 +98,7 @@ var Game = function() {
     miniMapContext.clearRect(0, 0, 400, 400);
 
     this.world.render(gameContext);
-    this.world.renderMiniMap(miniMapContext);
+    //this.world.renderMiniMap(miniMapContext);
     this.hero.render(gameContext, miniMapContext);
   };
 };

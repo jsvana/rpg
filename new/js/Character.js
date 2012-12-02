@@ -1,4 +1,4 @@
-var Character = function(name) {
+var Character = function(name, assets) {
   this.name = name || 'Steve';
 
   this.hp = 100;
@@ -11,41 +11,61 @@ var Character = function(name) {
   this.dimensions = { width: 32, height: 32, mapWidth: 0, mapHeight: 0 };
   this.tweens = { x: 0, y: 0 };
   this.direction = Direction.down;
+  this.frame = 1;
+  this.moving = false;
+  this.assets = assets;
 
   this.satchel = new Satchel();
 
   this.initialize = function() {
   };
 
-  this.render = function(gameContext, miniMapContext) {
+  this.render = function(gameContext) {
     gameContext.save();
-    miniMapContext.save();
 
     var x = this.position.x * this.dimensions.width + this.dimensions.width / 2 + this.tweens.x;
     var y = this.position.y * this.dimensions.height + this.dimensions.height / 2 + this.tweens.y;
     var radius = this.dimensions.width / 2;
 
-    gameContext.strokeStyle = '#000000';
-    gameContext.fillStyle = '#000000';
-    miniMapContext.strokeStyle = '#000000';
-    miniMapContext.fillStyle = '#000000';
+    // gameContext.strokeStyle = '#000000';
+    // gameContext.fillStyle = '#000000';
 
-    gameContext.beginPath();
-    gameContext.arc(x, y, radius - 1, 0, 2 * Math.PI, false);
-    gameContext.fill();
-    gameContext.stroke();
-    gameContext.closePath();
+    // gameContext.beginPath();
+    // gameContext.arc(x, y, radius - 1, 0, 2 * Math.PI, false);
+    // gameContext.fill();
+    // gameContext.stroke();
+    // gameContext.closePath();
 
-    miniMapContext.beginPath();
-    miniMapContext.arc((this.position.mapX * this.dimensions.mapWidth * this.dimensions.width + x) / 4,
-      (this.position.mapY * this.dimensions.mapHeight * this.dimensions.height + y) / 4,
-      radius / 4 - 1, 0, 2 * Math.PI, false);
-    miniMapContext.fill();
-    miniMapContext.stroke();
-    miniMapContext.closePath();
+    var directionIndex;
+
+    if (this.direction === Direction.up) {
+      directionIndex = 0;
+    } else if (this.direction === Direction.right) {
+      directionIndex = 1;
+    } else if (this.direction === Direction.down) {
+      directionIndex = 2;
+    } else if (this.direction === Direction.left) {
+      directionIndex = 3;
+    }
+
+    gameContext.drawImage(this.assets.character,
+          5 + this.frame * 20, 10 + directionIndex * 30, 24, 24,
+          x - 10, y - 10, 32, 32);
 
     gameContext.restore();
-    miniMapContext.restore();
+  };
+
+  this.animate = function(ticks) {
+    if (ticks % 20 === 0) {
+      if (this.moving) {
+        ++this.frame;
+        if (this.frame === 3) {
+          this.frame = 0;
+        }
+      } else {
+        this.frame = 1;
+      }
+    }
   };
 
   this.setMapPosition = function(position) {
@@ -83,7 +103,10 @@ var Character = function(name) {
   };
 
   this.tween = function(direction) {
-    this.direction = direction;
+    this.moving = true;
+    if (direction) {
+      this.direction = direction;
+    }
 
     if ((direction === Direction.left || direction === Direction.right) && this.tweens.x === 0) {
       if (direction === Direction.left) {
@@ -121,6 +144,10 @@ var Character = function(name) {
     if (this.tweens.y < 0 && this.direction === Direction.up
       || this.tweens.y > 0 && this.direction === Direction.down) {
       this.tweens.y = 0;
+    }
+
+    if (!this.isTweening()) {
+      this.moving = false;
     }
   };
 };

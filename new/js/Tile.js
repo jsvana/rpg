@@ -1,7 +1,6 @@
-var Tile = function(type, position, mapDimensions, assets) {
-  this.type = type;
+var Tile = function(layers, assets) {
+  this.types = layers;
   this.walkable = true;
-  this.position = position;
   this.dimensions = {
     width: 32,
     height: 32
@@ -9,36 +8,30 @@ var Tile = function(type, position, mapDimensions, assets) {
 
   this.assets = assets;
 
-  if (mapDimensions) {
-    this.dimensions.mapWidth = mapDimensions.width || 0;
-    this.dimensions.mapHeight = mapDimensions.height || 0;
-  }
-
-  this.render = function(context, small) {
+  this.render = function(context, x, y) {
     context.save();
 
-    var width, height;
-    var x, y;
-    var imageX = this.type % 16;
-    var imageY = Math.floor(this.type / 16);
+    var width = this.dimensions.width;
+    var height = this.dimensions.height;
 
-    if (small) {
-      width = this.dimensions.width / 4;
-      height = this.dimensions.height / 4;
+    for (var layer = 0; layer < this.types.length; layer++) {
+      var imageX = this.types[layer] % 16 - 1;
+      var imageY = Math.floor(this.types[layer] / 16);
 
-      x = this.position.mapX * this.dimensions.mapWidth * width + this.position.x * width;
-      y = this.position.mapY * this.dimensions.mapHeight * height + this.position.y * height;
-    } else {
-      width = this.dimensions.width;
-      height = this.dimensions.height;
+      if (imageX < 0) {
+        --imageY;
+        imageX = 15;
+      }
 
-      x = this.position.x * width;
-      y = this.position.y * height;
+      if (this.types[layer] === 0) {
+        //context.fillStyle = '#ffffff';
+        //context.fillRect(x, y, width, height);
+      } else {
+        context.drawImage(this.assets.tileset,
+          imageX * width, imageY * height, width, height,
+          x, y, width, height);
+      }
     }
-
-    context.drawImage(this.assets.tileset,
-      imageX * width, imageY * height, width, height,
-      x, y, width, height);
 
     context.restore();
   };

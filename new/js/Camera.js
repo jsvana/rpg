@@ -1,0 +1,3 @@
+var Camera = function() {
+
+};
