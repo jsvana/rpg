@@ -48,7 +48,7 @@ var World = function(assets) {
 
     for (var y = yMin; y < yMax; y++) {
       for (var x = xMin; x < xMax; x++) {
-        this.tiles[y][x].render(context, x * this.tileDimensions.width, y * this.tileDimensions.height);
+        this.tiles[y][x].render(context, (x - xMin) * this.tileDimensions.width, (y - yMin) * this.tileDimensions.height);
       }
     }
   };
@@ -59,31 +59,49 @@ var World = function(assets) {
 
     switch (direction) {
       case Direction.up:
-        if (character.position.y - magnitude >= 0
+        if (character.position.y - magnitude < 0
+          && this.currentMap.y > 0) {
+          --this.currentMap.y;
+          character.position.y = this.viewportDimensions.height - 1;
+        } else if (character.position.y - magnitude >= 0
           && this.tiles[currentY - magnitude][currentX].walkable) {
           --character.position.y;
           character.tween(direction);
         }
         break;
       case Direction.down:
-        if (character.position.y + magnitude < this.viewportDimensions.height
+        if (character.position.y + magnitude >= this.viewportDimensions.height
+          && this.currentMap.y < this.dimensions.mapHeight - 1) {
+          ++this.currentMap.y;
+          character.position.y = 0;
+        } else if (character.position.y + magnitude < this.viewportDimensions.height
           && this.tiles[currentY + magnitude][currentX].walkable) {
           ++character.position.y;
           character.tween(direction);
         }
         break;
       case Direction.left:
-        if (character.position.x - magnitude >= 0
+        if (character.position.x - magnitude < 0
+          && this.currentMap.x > 0) {
+          --this.currentMap.x;
+          character.position.x = this.viewportDimensions.width - 1;
+        } else if (character.position.x - magnitude >= 0
           && this.tiles[currentY][currentX - magnitude].walkable) {
           --character.position.x;
           character.tween(direction);
+          console.log('[LOG] move left, x: ' + character.position.x);
         }
         break;
       case Direction.right:
-        if (character.position.x + magnitude < this.viewportDimensions.width
+        if (character.position.x + magnitude >= this.viewportDimensions.width
+          && this.currentMap.x < this.dimensions.mapWidth - 1) {
+          ++this.currentMap.x;
+          character.position.x = 0;
+        } else if (character.position.x + magnitude < this.viewportDimensions.width
           && this.tiles[currentY][currentX + magnitude].walkable) {
           ++character.position.x;
           character.tween(direction);
+          console.log('[LOG] move right, x: ' + character.position.x);
         }
         break;
     }

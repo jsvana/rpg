@@ -27,45 +27,16 @@ var Character = function(name, assets) {
     var y = this.position.y * this.dimensions.height + this.dimensions.height / 2 + this.tweens.y;
     var radius = this.dimensions.width / 2;
 
-    // gameContext.strokeStyle = '#000000';
-    // gameContext.fillStyle = '#000000';
+    gameContext.strokeStyle = '#000000';
+    gameContext.fillStyle = '#000000';
 
-    // gameContext.beginPath();
-    // gameContext.arc(x, y, radius - 1, 0, 2 * Math.PI, false);
-    // gameContext.fill();
-    // gameContext.stroke();
-    // gameContext.closePath();
-
-    var directionIndex;
-
-    if (this.direction === Direction.up) {
-      directionIndex = 0;
-    } else if (this.direction === Direction.right) {
-      directionIndex = 1;
-    } else if (this.direction === Direction.down) {
-      directionIndex = 2;
-    } else if (this.direction === Direction.left) {
-      directionIndex = 3;
-    }
-
-    gameContext.drawImage(this.assets.character,
-          5 + this.frame * 20, 10 + directionIndex * 30, 24, 24,
-          x - 10, y - 10, 32, 32);
+    gameContext.beginPath();
+    gameContext.arc(x, y, radius - 1, 0, 2 * Math.PI, false);
+    gameContext.fill();
+    gameContext.stroke();
+    gameContext.closePath();
 
     gameContext.restore();
-  };
-
-  this.animate = function(ticks) {
-    if (ticks % 20 === 0) {
-      if (this.moving) {
-        ++this.frame;
-        if (this.frame === 3) {
-          this.frame = 0;
-        }
-      } else {
-        this.frame = 1;
-      }
-    }
   };
 
   this.setMapPosition = function(position) {
@@ -104,6 +75,7 @@ var Character = function(name, assets) {
 
   this.tween = function(direction) {
     this.moving = true;
+
     if (direction) {
       this.direction = direction;
     }
@@ -130,8 +102,11 @@ var Character = function(name, assets) {
       this.tweens.x += 4;
     }
 
-    if (this.tweens.x < 0 && this.direction === Direction.left
-      || this.tweens.x > 0 && this.direction === Direction.right) {
+    if (this.tweens.x > 0 && this.direction === Direction.left) {
+      this.tweens.x = 0;
+    }
+
+    if (this.tweens.x < 0 && this.direction === Direction.right) {
       this.tweens.x = 0;
     }
 

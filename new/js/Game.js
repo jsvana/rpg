@@ -12,21 +12,17 @@ var Game = function() {
 
   var keyDown = (function(self) {
     return function(e) {
-      if (e.which < 37 || e.which > 40) {
-        return;
+      if (e.which >= 37 || e.which <= 40) {
+        self.arrowKeys[e.which - 37] = true;
       }
-
-      self.arrowKeys[e.which - 37] = true;
     };
   })(this);
 
   var keyUp = (function(self) {
     return function(e) {
-      if (e.which < 37 || e.which > 40) {
-        return;
+      if (e.which >= 37 || e.which <= 40) {
+        self.arrowKeys[e.which - 37] = false;
       }
-
-      self.arrowKeys[e.which - 37] = false;
     };
   })(this);
 
@@ -55,8 +51,6 @@ var Game = function() {
           }
         }
       }
-
-      self.hero.animate(self.ticks);
 
       self.render(self.gameWindow, self.miniMapWindow, self.assets);
 
@@ -87,8 +81,6 @@ var Game = function() {
       self.world = new World(assets);
       self.world.initialize();
 
-      self.hero.setMapDimensions(self.world.getMapDimensions());
-
       self.gameTimer = RPG.timer(RPG.fpsToMS(50), gameLoop);
     });
   };
@@ -98,7 +90,6 @@ var Game = function() {
     miniMapContext.clearRect(0, 0, 400, 400);
 
     this.world.render(gameContext);
-    //this.world.renderMiniMap(miniMapContext);
     this.hero.render(gameContext, miniMapContext);
   };
 };
