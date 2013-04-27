@@ -106,7 +106,7 @@ var Character = function(name, assets) {
       this.tweens.x = 0;
     }
 
-    if (this.tweens.x < 0 && this.direction === Direction.right) {
+    if (this.tweens.x > 0 && this.direction === Direction.right) {
       this.tweens.x = 0;
     }
 
